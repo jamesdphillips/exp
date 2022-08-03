@@ -24,7 +24,7 @@ class StorageEventListener {
   // TODO: unsubscribe!
   // TODO: keep ref count and close unused streams
   // TODO: can likely simplify lazy initialization
-  listen(storage: Storage, key: string): AsyncIterable<StorageValue> {
+  listen(storage: Storage, key: string): AsyncIterableIterator<StorageValue> {
     let map = this.#streams.get(storage);
     if (!map) {
       map = new Map();
@@ -70,7 +70,7 @@ class StorageEventListener {
 }
 
 class StorageEventListenerSingleton extends StorageEventListener {
-  listen(storage: Storage, key: string): AsyncIterable<StorageValue> {
+  listen(storage: Storage, key: string): AsyncIterableIterator<StorageValue> {
     this.start();
     return super.listen(storage, key);
   }

@@ -1,6 +1,6 @@
 import handle from "/app/exceptionHandler";
 
-import React, { VoidFunctionComponent } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import gql from "graphql-tag";
 
@@ -38,7 +38,6 @@ import createApolloClient from "/app/apollo/client";
 import invalidateTokens from "/app/mutation/invalidateTokens";
 import { refreshTokens } from "./util/authAPI";
 import tap from "./util/tap";
-import { string, symbol } from "prop-types";
 
 // Lazy load
 const AppView = React.lazy(() => import("/app/component/view/AppView"));
@@ -106,7 +105,7 @@ interface SyncAuthQuery {
 interface Var<T> {
   get(callback: (_: T) => void): void;
   set(nextValue: T, callback?: () => Error): void;
-  [Symbol.iterator]: Iterable<T>;
+  [Symbol.iterator]: AsyncIterableIterator<T>;
 }
 
 interface BearerToken {
@@ -191,34 +190,59 @@ class PromisedBroadcastStream<T> {
   }
 }
 
-type Unsubscribe = () => void;
+type Unsubscriber = () => void;
 
 function createStorageEventListener(
   callback: (ev: StorageEvent) => void,
-): Unsubscribe {
+): Unsubscriber {
   window.addEventListener("storage", callback);
   return () => window.removeEventListener("storage", callback);
 }
 
-class StorageEntryEventListener<T> {
-  #streams: Map<string, BroadcastStream<T>>;
+type StorageValue = string | null;
 
-  constructor(storage: Storage) {
-    this.#streams = new Map();
+class StorageEntryEventListener {
+  #streams: WeakMap<Storage, Map<string, BroadcastStream<StorageValue>>>;
+  #unsub?: Unsubscriber;
+
+  constructor() {
+    this.#streams = new WeakMap();
   }
 
-  get(storage: Storage, key: string): AsyncIterable<T> {
-    let stream = this.#streams.get(key);
-    if (stream) {
-      return stream;
+  listen(storage: Storage, key: string): AsyncIterable<StorageValue> {
+    let map = this.#streams.get(storage);
+    if (!map) {
+      map = new Map();
+      this.#streams.set(storage, map);
     }
-    stream = new PromisedBroadcastStream<T>();
-    this.#streams.set(key, stream);
+    let stream = map.get(key);
+    if (!stream) {
+      stream = new PromisedBroadcastStream();
+      map.set(key, stream);
+    }
     return stream;
   }
 
-  #start() {
-    createStorageEventListener()
+  start() {
+    this.stop();
+    this.#unsub = createStorageEventListener((storageEv) => {
+      if (!storageEv.storageArea || !storageEv.key) {
+        return;
+      }
+      const map = this.#streams.get(storageEv.storageArea);
+      if (!map) {
+        return;
+      }
+      const stream = map.get(storageEv.key);
+      if (!stream) {
+        return;
+      }
+      stream.write(storageEv.newValue);
+    });
+  }
+
+  stop() {
+    this.#unsub && this.#unsub();
   }
 }
 

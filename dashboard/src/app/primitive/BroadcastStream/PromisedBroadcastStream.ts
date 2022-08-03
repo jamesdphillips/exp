@@ -1,13 +1,4 @@
-import tap from "../util/tap";
-
-/**
- * BroadcastStream is walkie-talkie for you and your friends, where anyone one
- * with an instance may listen in and broadcast messages to all consumers.
- */
-export interface BroadcastStream<T> {
-  write(msg: T): Promise<void>;
-  [Symbol.asyncIterator]: () => AsyncIterator<T>;
-}
+import tap from "/app/util/tap";
 
 /**
  * PromisedBroadcastStream is the simplest implementation of a broadcast stream
