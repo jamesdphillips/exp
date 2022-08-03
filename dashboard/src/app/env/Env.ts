@@ -112,10 +112,8 @@ interface Map<T extends Record<any, any>> extends MapGetter<T> {
   [Symbol.iterator]: () => Iterator<KeyedAtom<keyof T, T[keyof T]>>;
 }
 
-type MutableMap<T extends Record<any, any>> = Map<T> & MapSetter<T>;
+export type MutableMap<T extends Record<any, any>> = Map<T> & MapSetter<T>;
 
-type WatchableMap<T extends Record<any, any>> = Map<T> & MapWatcher<T>;
+export type WatchableMap<T extends Record<any, any>> = Map<T> & MapWatcher<T>;
 
-type WatchableMutableMap<T> = MutableMap<T> & WatchableMap<T>;
-
-function makeMap()
+export type WatchableMutableMap<T> = MutableMap<T> & WatchableMap<T>;
