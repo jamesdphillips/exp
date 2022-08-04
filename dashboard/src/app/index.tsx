@@ -93,21 +93,6 @@ function createFetch(getAuthToken: () => Promise<BearerToken>): typeof fetch {
 
 const authQueryKey = "$SYNC.SyncAuthQuery";
 
-interface SyncAuthQuery {
-  auth?: {
-    invalid?: false;
-    accessToken?: string;
-    refreshToken?: string;
-    expiresAt?: string;
-  };
-}
-
-interface Var<T> {
-  get(callback: (_: T) => void): void;
-  set(nextValue: T, callback?: () => Error): void;
-  [Symbol.iterator]: AsyncIterableIterator<T>;
-}
-
 interface BearerToken {
   kind: "Bearer";
   token: string;
