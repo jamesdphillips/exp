@@ -5,5 +5,5 @@
 export interface BroadcastStream<T> {
   write(msg: T): Promise<void>;
   next(): Promise<IteratorResult<T>>;
-  [Symbol.asyncIterator]: () => AsyncIterableIterator<T>;
+  [Symbol.asyncIterator](): AsyncIterableIterator<T>;
 }

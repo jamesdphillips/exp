@@ -2,37 +2,42 @@ import { PromisedBroadcastStream } from "./PromisedBroadcastStream";
 import { BroadcastStream } from "./BroadcastStream";
 import StorageEventListener from "/app/util/StorageEventListener";
 
-export interface StorageBroadcastStreamConfig<T> {
+export interface StorageBroadcastStreamConfig {
   storage: Storage;
   key: string;
-  translator: Translator<T>;
-  stream?: BroadcastStream<T>;
+  stream?: BroadcastStream<StorageValue>;
 }
 
-export class StorageBroadcastStream<T> {
-  readonly config: StorageBroadcastStreamConfig<T>;
-  readonly stream: BroadcastStream<T>;
+type StorageValue = string | null;
 
-  constructor(config: StorageBroadcastStreamConfig<T>) {
+export class StorageBroadcastStream {
+  readonly config: StorageBroadcastStreamConfig;
+  readonly stream: BroadcastStream<StorageValue>;
+
+  constructor(config: StorageBroadcastStreamConfig) {
     this.config = config;
     this.stream = config.stream || new PromisedBroadcastStream();
   }
 
   next() {
-    const { storage, translator, key } = this.config;
+    const { storage, key } = this.config;
 
     return Promise.any([
       StorageEventListener.listen(storage, key)
         .next()
-        .then((result) => translator.decode(result.value))
-        .then((value) => ({ value } as IteratorResult<T>)),
+        .then((value) => ({ value } as IteratorResult<StorageValue>)),
       this.stream.next(),
     ]);
   }
 
-  write(next: T): Promise<void> {
-    const value = this.config.translator.encode(next);
-    this.config.storage.setItem(this.config.key, value);
+  write(next: StorageValue): Promise<void> {
+    if (next !== null) {
+      this.config.storage.setItem(this.config.key, next);
+    } else {
+      this.config.storage.removeItem(this.config.key);
+    }
+    // notify local users
+    this.stream.write(next);
     return Promise.resolve();
   }
 
@@ -40,24 +45,3 @@ export class StorageBroadcastStream<T> {
     return this;
   }
 }
-
-type JSONValue =
-  | string
-  | number
-  | boolean
-  | { [x: string]: JSONValue }
-  | Array<JSONValue>;
-
-interface Translator<T> {
-  encode(_: T): string;
-  decode(_: string | null): T | undefined;
-}
-
-export const JSONTranslator = {
-  encode(val: JSONValue) {
-    return JSON.stringify(val);
-  },
-  decode(val: string | null) {
-    return JSON.parse(val || "") as JSONValue;
-  },
-};
