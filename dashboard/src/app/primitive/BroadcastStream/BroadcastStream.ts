@@ -1,6 +1,6 @@
 /**
- * BroadcastStream is walkie-talkie for you and your friends, where anyone one
- * with an instance may listen in and broadcast messages to all consumers.
+ * BroadcastStream is walkie-talkie for you and your friends, anyone one
+ * with an instance may broadcast messages to all listeners.
  */
 export interface BroadcastStream<T> {
   write(msg: T): Promise<void>;

@@ -1,14 +1,16 @@
-interface Gettable<T> {
-  get(): T;
+import { Var } from "./Var";
+
+interface Gettable<K, T> {
+  get(key: K): Promise<T>;
 }
 
-interface Settable<T> {
-  set(): T;
+interface Settable<K, T> {
+  set(key: K, next?: T): Promise<void>;
 }
 
-type Atom<T> = Gettable<T> & Settable<T>;
+type MapStorage<K, T> = Gettable<K, T> & Settable<K, T>;
 
-interface KeyedAtom<K, V> extends Atom<V> {
+interface MapEntry<K, V> extends Var<V> {
   key(): K;
 }
 
@@ -57,7 +59,9 @@ export interface Env<T extends Record<string, any> = Record<string, never>> {
    *   break;
    * }
    */
-  [Symbol.iterator]: () => Iterator<KeyedAtom<keyof T, T[keyof T]>>;
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<
+    KeyedAtom<keyof T, T[keyof T]>
+  >;
 }
 
 interface MapGetter<T extends Record<any, any>> {
@@ -109,7 +113,9 @@ interface Map<T extends Record<any, any>> extends MapGetter<T> {
    *   break;
    * }
    */
-  [Symbol.iterator]: () => Iterator<KeyedAtom<keyof T, T[keyof T]>>;
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<
+    KeyedAtom<keyof T, T[keyof T]>
+  >;
 }
 
 export type MutableMap<T extends Record<any, any>> = Map<T> & MapSetter<T>;
