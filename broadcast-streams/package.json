@@ -1,0 +1,23 @@
+{
+  "name": "broadcast-streams",
+  "version": "1.0.0",
+  "description": "An experiment with using a broadcast mechanism for implementing a reactive variable.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesdphillips/exp.git"
+  },
+  "keywords": [
+    "reactive",
+    "streams"
+  ],
+  "author": "James Phillips <jamesdphillips@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jamesdphillips/exp/issues"
+  },
+  "homepage": "https://github.com/jamesdphillips/exp#readme"
+}
