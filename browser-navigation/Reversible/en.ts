@@ -1,4 +1,4 @@
-type Func<P, R> = (...P) => R;
+type Func<P extends any[], R> = (...args: P) => R;
 type AnyFunc = Func<any, any>;
 
 type Tagged<T> = { [symbol]: T };
@@ -65,9 +65,8 @@ type Reversed<Fn extends AnyFunc> = (_: ReturnType<Fn>) => Parameters<Fn>[0];
  * @param fn should implement the reverse operation as the target
  * @returns Reversible<typeof target>
  */
-export function tag<T extends AnyFunc>(target: T, fn: Reversed<T>) {
-  target[symbol] = fn;
-  return target as Iface<T>;
+export function embed<T extends AnyFunc>(target: T, fn: Reversed<T>) {
+  return Object.assign(target, { [symbol]: fn }) as Iface<T>;
 }
 
 /**
@@ -76,13 +75,24 @@ export function tag<T extends AnyFunc>(target: T, fn: Reversed<T>) {
 export type Maybe<T extends AnyFunc> = T & { [symbol]: T | undefined }
 
 /**
- *
+ * Extracts the reverse function from the given function 
  *
  * @param target function containing tag
  * @returns Reversed<typeof target> | undefined
  */
-export function unwrap<T extends any>(target: Tagged<T>): T {
+export function extract<T extends object>(target: Tagged<T>): T {
   return target[symbol];
+}
+
+
+
+/**
+ * Produces a new bi-directional mapping where X => Y becomes Y => X.
+ */
+export function flip<T extends object>(target: Tagged<T>): T {
+  const reverse = extract(target);
+  const without = { ...target, [symbol]: undefined };
+  return Object.assign(reverse, without);
 }
 
 // const x: Reversible.Maybe<() => string> = () => "hello";

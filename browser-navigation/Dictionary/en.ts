@@ -1,8 +1,5 @@
 import { curry, pick } from "../Object/en";
 
-import { Mapping } from "../Mapping/en";
-import { Iface } from "../Reversible/en";
-
 interface Dictionary<W, T> {
   get(word: W): T | null;
   set(word: W, entry: T | null): void;
@@ -25,10 +22,13 @@ export type Entry<T> = DictionaryEntry<T>;
  * @param word
  * @returns entry
  */
-export const reroot =
-  <W>(word: W) =>
-  <T>(source: Dictionary<W, T>) =>
-    curry(pick(source, "get", "set"), word);
+export function reroot<W, T>(source: Dictionary<W, T>, word: W) {
+  return curry(pick(source, "get", "set"), word) as Omit<
+    typeof source,
+    "get" | "set"
+  > &
+    Entry<T>;
+}
 
 /**
  * Given a word returns a mapping of a dictionary to zero or more entries
@@ -37,17 +37,18 @@ export const reroot =
  * @param word
  * @returns entry
  */
-export const rerootList =
-  <W>(word: W) =>
-  <T>(source: Dictionary<W, T>) => ({
+export function rerootList<W, T>(source: Dictionary<W, T>, word: W) {
+  return {
+    ...source,
     get(): T[] {
       return source.getAll(word);
     },
     set(vs: T[]) {
       source.set(word, null);
-      vs.forEach(v => source.append(word, v));
+      vs.forEach((v) => source.append(word, v));
     },
-  } as DictionaryEntry<T[]>)
+  } as typeof source & Entry<T[]>;
+}
 
 // const entry = reroot("test")(new URLSearchParams());
 // entry.get();
