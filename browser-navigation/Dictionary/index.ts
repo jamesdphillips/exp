@@ -1,11 +1,11 @@
-import { curry, pick } from "../Object/en";
+import { curry, pick } from "../Object/index.ts";
 
 interface Dictionary<W, T> {
   get(word: W): T | null;
   set(word: W, entry: T | null): void;
 
   getAll(word: W): T[];
-  append(word, entry: T): void;
+  append(word: W, entry: T): void;
 }
 
 interface DictionaryEntry<T> {
@@ -14,7 +14,7 @@ interface DictionaryEntry<T> {
 }
 
 export type I<W, T> = Dictionary<W, T>;
-export type Entry<T> = DictionaryEntry<T>;
+export type Entry<D, T> = D & DictionaryEntry<T>;
 
 /**
  * Given a word returns a mapping of a dictionary to an entry within.
@@ -23,11 +23,7 @@ export type Entry<T> = DictionaryEntry<T>;
  * @returns entry
  */
 export function reroot<W, T>(source: Dictionary<W, T>, word: W) {
-  return curry(pick(source, "get", "set"), word) as Omit<
-    typeof source,
-    "get" | "set"
-  > &
-    Entry<T>;
+  return curry(pick(source, "get", "set"), word) as Entry<typeof source, T>;
 }
 
 /**

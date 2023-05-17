@@ -1,6 +1,6 @@
 import { SetFn, GetFn } from "../core/index.ts";
-import Mapping from "../Mapping/index.ts";
-import * as Reversible from "../Reversible/en.ts";
+import * as Mapping from "../Mapping/index.ts";
+import Reversible from "../Reversible/index.ts";
 // import * as Hrefable from "../Hrefable/index.ts";
 // import * as Dictionary from "../Dictionary/en.ts";
 // import * as BMaps from "../strconv/bmap.ts";
@@ -249,26 +249,32 @@ function assignFn<T extends AnyFunc, Func extends AnyFunc>(
  * @param bmap
  * @returns Mapping<Variable>
  */
-export const transform = <V extends Variable<T>, T, M>(
-  variable: V,
-  bmap: Reversible.Iface<Mapping<T, M>>
-) =>
-  ({
-    ...variable,
+export function transform<M, Var extends Variable<any> = any>(
+  variable: Var,
+  bmap: Mapping.TwoWay<any, M>,
+) {
+  return Object.assign({}, variable, {
     get: assignFn(variable.get, () => bmap(variable.get())),
     set: assignFn(variable.set, (val: M) => {
-      const reverse = Reversible.extract(bmap);
-      variable.set(reverse(val));
+      variable.set(Reversible.apply(bmap, val));
     }),
-  } as Transformed<typeof variable, M>);
-
-type Nomable<T> = T & {
-  nom: string;
-};
-
-export interface NomableVar<T> extends Variable<T> {
-  set: Nomable<Variable<T>["set"]>;
+  }) as Transformed<typeof variable, M>;
 }
+  // ({
+  //   ...variable,
+  //   get: assignFn(variable.get, () => bmap(variable.get())),
+  //   set: assignFn(variable.set, (val: M) => {
+  //     variable.set(Reversible.apply(bmap, val));
+  //   }),
+  // } as Transformed<typeof variable, M>);
+
+// type Nomable<T> = T & {
+//   nom: string;
+// };
+
+// export interface NomableVar<T> extends Variable<T> {
+//   set: Nomable<Variable<T>["set"]>;
+// }
 
 // const a: Hrefable.Var<string | undefined> = local("10");
 // const d: { num?: number } = { num: 42 };

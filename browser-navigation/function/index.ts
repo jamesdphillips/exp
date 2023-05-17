@@ -4,9 +4,8 @@
 /**
  * Pipes the value of an expression into a pipeline of functions.
  *
- * See also [`flow`](#flow).
- *
  * @example
+ * 
  * import { pipe } from 'fp-ts/function'
  *
  * const len = (s: string): number => s.length
@@ -17,8 +16,7 @@
  *
  * // with pipe
  * assert.strictEqual(pipe('aaa', len, double), 6)
- *
- * @since 2.6.3
+ * 
  */
 export function pipe<A>(a: A): A
 export function pipe<A, B>(a: A, ab: (a: A) => B): B

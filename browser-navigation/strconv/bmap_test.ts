@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 
 import * as BMaps from "./bmap.ts";
-import * as Reversible from "../Reversible/en.ts";
+import * as Reversible from "../Reversible/index.ts";
 
 Deno.test({
   name: "bool",

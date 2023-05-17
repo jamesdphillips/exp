@@ -2,6 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 
 import * as Variable from "./index.ts";
 import * as BMaps from "../strconv/bmap.ts";
+import * as Dictionary from "../Dictionary/index.ts";
 
 Deno.test({
   name: "Variable.local",
@@ -146,15 +147,15 @@ Deno.test({
     }
 
     const a = Variable.local<string | undefined>("10");
-    const b = {
+    const b: NomableVar<string | undefined> = {
       ...a,
       set: Object.assign(a.set, { desc: "123" }),
-    } as NomableVar<string | undefined>;
+    };
 
     const c = Variable.transform(b, BMaps.number());
     assertEquals(a.get(), "10");
     assertEquals(b.get(), "10");
-    assertEquals(c.get(), 10);
+    assertEquals(c.get(), 0x10);
     assertEquals(c.set.desc, "123");
 
     c.set(42);
@@ -162,5 +163,39 @@ Deno.test({
 
     c.set.desc = "hello!";
     assertEquals(c.set.desc, "hello!");
+  },
+});
+
+Deno.test({
+  name: "Variable.transpose",
+  fn() {
+    type Nomable<T> = T & {
+      desc?: string;
+    };
+
+    interface NomableVar<T> extends Variable.Variable<T> {
+      set: Nomable<Variable.Variable<T>["set"]>;
+    }
+
+    const a = Variable.local(new URLSearchParams("?x=1"));
+    const b = { ...a,
+      set: Object.assign(a.set, { desc: "123" }),
+    };
+
+    const c = Variable.transpose(b, (x) => Dictionary.reroot(x, "x"));
+    assertEquals(a.get().toString(), "x=1");
+    assertEquals(b.get().toString(), "x=1");
+    assertEquals(c.get(), "1");
+    assertEquals(b.set.desc, "123");
+    assertEquals(c.set.desc, "123");
+
+    c.set("42");
+    assertEquals(c.get(), "42");
+
+    c.set.desc = "hello!";
+    assertEquals(c.set.desc, "hello!");
+
+    const d = Variable.transform(c, BMaps.number());
+    assertEquals(d.get(), "hello!");
   },
 });

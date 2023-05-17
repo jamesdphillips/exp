@@ -1,5 +1,4 @@
-import Mapping from "../Mapping/index.ts";
-import * as Reversible from "../Reversible/en.ts";
+import * as Mapping from "../Mapping/index.ts";
 import * as Format from "./format.ts";
 import * as Parse from "./parse.ts";
 
@@ -38,7 +37,7 @@ export const jsonValue = prepare(Parse.jsonValue, Format.jsonValue);
 type Maybe<T> = T | undefined;
 type Errorable<T> = Readonly<[T, undefined] | [unknown, Error]>;
 
-function ifDefined<T, R>(cb: Mapping<T, R>) {
+function ifDefined<T, R>(cb: Mapping.OneWay<T, R>) {
   return (val: Maybe<T>) => {
     if (typeof val === "undefined") {
       return val;
@@ -48,7 +47,7 @@ function ifDefined<T, R>(cb: Mapping<T, R>) {
 }
 
 function unlessError<K, T, R extends Errorable<T>>(
-  cb: Mapping<K, R>,
+  cb: Mapping.OneWay<K, R>,
   fn: ErrorHandler<T>
 ) {
   return (val: K) => {
@@ -57,14 +56,14 @@ function unlessError<K, T, R extends Errorable<T>>(
 }
 
 function prepare<To>(
-  _to: Mapping<string, Errorable<To>>,
-  _from: Mapping<To, string>
+  _to: Mapping.OneWay<string, Errorable<To>>,
+  _from: Mapping.OneWay<To, string>
 ) {
   return (handler: ErrorHandler<To | undefined> = undef) => {
     const from = ifDefined(_from);
     const to = ifDefined(unlessError(_to, handler));
 
-    return Reversible.embed(to, from);
+    return Mapping.TwoWay.embed(to, from);
   };
 }
 
