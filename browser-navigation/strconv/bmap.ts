@@ -8,7 +8,7 @@ import * as Parse from "./parse.ts";
  * @example
  *
  * const a = bool();
- * const b = Reversible.flip(a);
+ * const b = Mapping.TwoWay.flip(a);
  * const c = a("true"); // === true
  * const d = b(true)    // === "true"
  */
@@ -63,7 +63,7 @@ function prepare<To>(
     const from = ifDefined(_from);
     const to = ifDefined(unlessError(_to, handler));
 
-    return Mapping.TwoWay.embed(to, from);
+    return Mapping.TwoWay.make(to, from);
   };
 }
 

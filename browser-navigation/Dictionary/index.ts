@@ -43,7 +43,7 @@ export function rerootList<W, T>(source: Dictionary<W, T>, word: W) {
       source.set(word, null);
       vs.forEach((v) => source.append(word, v));
     },
-  } as typeof source & Entry<T[]>;
+  } as Entry<typeof source, T[]>;
 }
 
 // const entry = reroot("test")(new URLSearchParams());

@@ -178,7 +178,7 @@ Deno.test({
     }
 
     const a = Variable.local(new URLSearchParams("?x=1"));
-    const b = { ...a,
+    const b: NomableVar<URLSearchParams> = { ...a,
       set: Object.assign(a.set, { desc: "123" }),
     };
 
@@ -196,6 +196,6 @@ Deno.test({
     assertEquals(c.set.desc, "hello!");
 
     const d = Variable.transform(c, BMaps.number());
-    assertEquals(d.get(), "hello!");
+    assertEquals(d.get(), 10);
   },
 });

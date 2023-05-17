@@ -39,7 +39,10 @@ export function curry<T extends Record<PropertyKey, any>>(
         value: target[prop],
       };
       console.log(target, prop);
-      return (...args: Parameters<T[typeof prop]>) => ref?.value(arg, ...args);
+      return (...args: Parameters<T[typeof prop]>) => {
+        ref?.value(arg, ...args);
+        console.log(target, prop, "(", arg, ...args, ")");
+      };
     },
   }) as CurriedInterface<T>;
 }
@@ -65,7 +68,8 @@ export function pick<T extends object, K extends keyof T>(
   source: T,
   ...props: K[]
 ) {
-  return Object.fromEntries(
-    Object.entries(source).filter(([key]) => props.includes(key as any))
+  return props.reduce(
+    (acc, prop) => Object.defineProperty(acc, prop, { value: source[prop] }),
+    {}
   ) as Pick<typeof source, (typeof props)[number]>;
 }

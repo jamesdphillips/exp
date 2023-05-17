@@ -1,6 +1,5 @@
 import { SetFn, GetFn } from "../core/index.ts";
 import * as Mapping from "../Mapping/index.ts";
-import Reversible from "../Reversible/index.ts";
 // import * as Hrefable from "../Hrefable/index.ts";
 // import * as Dictionary from "../Dictionary/en.ts";
 // import * as BMaps from "../strconv/bmap.ts";
@@ -246,17 +245,17 @@ function assignFn<T extends AnyFunc, Func extends AnyFunc>(
  * const Variable<URLSearchParams> a = Var.local(window.location);
  * let b = transform(a, Reversible.embed(c => href, d => new URLSearchParams(...d)));
  *
- * @param bmap
+ * @param mapping
  * @returns Mapping<Variable>
  */
 export function transform<M, Var extends Variable<any> = any>(
   variable: Var,
-  bmap: Mapping.TwoWay<any, M>,
+  mapping: Mapping.TwoWay<any, M>,
 ) {
   return Object.assign({}, variable, {
-    get: assignFn(variable.get, () => bmap(variable.get())),
+    get: assignFn(variable.get, () => mapping(variable.get())),
     set: assignFn(variable.set, (val: M) => {
-      variable.set(Reversible.apply(bmap, val));
+      variable.set(Mapping.TwoWay.apply(mapping, val));
     }),
   }) as Transformed<typeof variable, M>;
 }

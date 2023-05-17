@@ -23,7 +23,7 @@ Deno.test({
   fn() {
     const x = (x: string) => parseInt(x, 10);
     const y = (x: number) => x.toString();
-    const z = new Mapping.TwoWay(x, y);
+    const z = Mapping.TwoWay.make(x, y);
     assertEquals(z("10"), 10);
 
     const xx = Mapping.TwoWay.flip(z);
