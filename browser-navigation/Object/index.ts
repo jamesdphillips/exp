@@ -69,7 +69,13 @@ export function pick<T extends object, K extends keyof T>(
   ...props: K[]
 ) {
   return props.reduce(
-    (acc, prop) => Object.defineProperty(acc, prop, { value: source[prop] }),
+    (acc, prop) => {
+      const desc = Object.getOwnPropertyDescriptor(source, prop);
+      if (desc) {
+        return Object.defineProperty(acc, prop, desc);
+      }
+      return { ...acc, [prop]: source[prop] };
+    },
     {}
   ) as Pick<typeof source, (typeof props)[number]>;
 }
