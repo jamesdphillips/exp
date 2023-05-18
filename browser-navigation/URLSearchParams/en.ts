@@ -1,7 +1,7 @@
-import { Variable, local } from "../Var/en";
-import * as Hrefable from "../Hrefable/en";
-import { Thunk } from "../core/en";
-import * as Object from "../Object/en";
+import { Variable, local } from "../Var/index.ts";
+import * as Hrefable from "../Hrefable/index.ts";
+import { Thunk } from "../core/index.ts";
+import * as Object from "../Object/index.ts";
 
 type OmitFirstArg<T> = T extends (arg1: any, ...args: infer R) => infer U
   ? (...args: R) => U
