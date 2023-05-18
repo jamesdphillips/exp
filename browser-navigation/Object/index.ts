@@ -1,5 +1,3 @@
-import { Maybe, Binding } from "../core/index.ts";
-
 type OmitFirstArg<T> = T extends (arg1: any, ...args: infer R) => infer U
   ? (...args: R) => U
   : never;
@@ -33,18 +31,13 @@ export function curry<T extends Record<PropertyKey, any>>(
   source: T,
   arg: any
 ): CurriedInterface<T> {
-  //
-  // TODO: not working in deno
-  //
   return new Proxy(source, {
-    get(target, prop: PropertyKey, receiver) {
+    get(target, prop, receiver) {
       if (!Reflect.get(target, prop, receiver)) {
         return;
       }
-      return (...args: Parameters<T[typeof prop]>) => {
-        const fn = Reflect.get(target, prop);
-        console.log("curry ::", { fn, target, args, receiver });
-        return Reflect.apply(fn, target, [arg, ...args]);
+      return (...args: any) => {
+        return Reflect.apply(Reflect.get(target, prop), target, [arg, ...args]);
       };
     },
   }) as CurriedInterface<T>;

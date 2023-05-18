@@ -194,7 +194,7 @@ function tap<V>(fn: (_: V) => any) {
  */
 
 export function logger<T extends Variable<any>>(v: T): T {
-  v.get = () => tap((v: T["get"]) => console.log(v))(v.get());
+  v.get = () => tap((v: T["get"]) => console.log("<logger />", v))(v.get());
   v.set = (val: T["set"]) => {
     console.log("<logger />", val);
     v.set(val);
