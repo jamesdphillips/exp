@@ -33,15 +33,18 @@ export function curry<T extends Record<PropertyKey, any>>(
   source: T,
   arg: any
 ): CurriedInterface<T> {
+  //
+  // TODO: not working in deno
+  //
   return new Proxy(source, {
-    get(target, prop: PropertyKey) {
-      const ref: Maybe<Binding<T[keyof T]>> = target[prop] && {
-        value: target[prop],
-      };
-      console.log(target, prop);
+    get(target, prop: PropertyKey, receiver) {
+      if (!Reflect.get(target, prop, receiver)) {
+        return;
+      }
       return (...args: Parameters<T[typeof prop]>) => {
-        ref?.value(arg, ...args);
-        console.log(target, prop, "(", arg, ...args, ")");
+        const fn = Reflect.get(target, prop);
+        console.log("curry ::", { fn, target, args, receiver });
+        return Reflect.apply(fn, target, [arg, ...args]);
       };
     },
   }) as CurriedInterface<T>;
@@ -64,18 +67,27 @@ export function curry<T extends Record<PropertyKey, any>>(
  * @param props
  * @returns Pick<T, K>
  */
-export function pick<T extends object, K extends keyof T>(
+export function pick<T extends Record<PropertyKey, any>, K extends keyof T>(
   source: T,
   ...props: K[]
 ) {
-  return props.reduce(
-    (acc, prop) => {
-      const desc = Object.getOwnPropertyDescriptor(source, prop);
-      if (desc) {
-        return Object.defineProperty(acc, prop, desc);
+  return new Proxy(source, {
+    get(target, prop, receiver) {
+      if (!props.includes(prop as K)) {
+        return;
       }
-      return { ...acc, [prop]: source[prop] };
+      // avoids inevitable Invocation errors when using built-in / objects
+      const property = Reflect.get(target, prop, receiver);
+      if (typeof property === "function") {
+        return (...args: any) => Reflect.apply(property, target, args);
+      }
+      return property;
     },
-    {}
-  ) as Pick<typeof source, (typeof props)[number]>;
+    set(target, prop, newValue, receiver) {
+      if (!props.includes(prop as K)) {
+        return false;
+      }
+      return Reflect.set(target, prop, newValue, receiver);
+    },
+  }) as Pick<typeof source, (typeof props)[number]>;
 }

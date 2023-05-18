@@ -155,7 +155,7 @@ Deno.test({
     const c = Variable.transform(b, BMaps.number());
     assertEquals(a.get(), "10");
     assertEquals(b.get(), "10");
-    assertEquals(c.get(), 0x10);
+    assertEquals(c.get(), 10);
     assertEquals(c.set.desc, "123");
 
     c.set(42);
@@ -196,6 +196,10 @@ Deno.test({
     assertEquals(c.set.desc, "hello!");
 
     const d = Variable.transform(c, BMaps.number());
-    assertEquals(d.get(), 10);
+    assertEquals(d.get(), 42);
+
+    d.set(7)
+    assertEquals(d.get(), 7);
+    assertEquals(c.get(), "7");
   },
 });
