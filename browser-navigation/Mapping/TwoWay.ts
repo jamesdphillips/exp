@@ -7,31 +7,6 @@ type Tagged<T> = { [symbol]: T };
 export const symbol = Symbol();
 
 /**
- * Bi-directional mapping of two parameters.
- *
- * @example
- *
- * const to = (x: string) => parseInt(x, 10);
- * const fro = (x: string) => parseInt(x, 10);
- * const mapping = new TwoWay(to, fro);
- *
- * console.log(mapping(10));
- * console.log(mapping(10));
- *
- */
-class TwoWayConstructor<From, To> {
-  static readonly apply = apply;
-  static readonly extract = extract;
-  static readonly flip = flip;
-  static readonly make = make;
-}
-interface TwoWayConstructor<From, To> extends OneWay<From, To> {
-  [symbol]: OneWay<To, From>;
-  __proto__?: TwoWayConstructor<From, To>;
-}
-export default TwoWayConstructor;
-
-/**
  * A Reversable is a function with a special property containing an
  * implementation of the function with the arguments and return type reversed.
  *
@@ -108,3 +83,28 @@ export function apply<R extends AnyFunc>(
   const fn = target[symbol];
   return fn(...(args as any));
 }
+
+/**
+ * Bi-directional mapping of two parameters.
+ *
+ * @example
+ *
+ * const to = (x: string) => parseInt(x, 10);
+ * const fro = (x: string) => parseInt(x, 10);
+ * const mapping = new TwoWay(to, fro);
+ *
+ * console.log(mapping(10));
+ * console.log(mapping(10));
+ *
+ */
+class TwoWayConstructor<From, To> {
+  static readonly apply = apply;
+  static readonly extract = extract;
+  static readonly flip = flip;
+  static readonly make = make;
+}
+interface TwoWayConstructor<From, To> extends OneWay<From, To> {
+  [symbol]: OneWay<To, From>;
+  __proto__?: TwoWayConstructor<From, To>;
+}
+export default TwoWayConstructor;

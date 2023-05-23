@@ -56,7 +56,7 @@ export function hrefify<T extends URLSearchParams>(
   const setter: (typeof target)["set"] = (val) => {
     mock ? mock.set(val) : orig.set(val);
   };
-  target.set = Hrefable.tag(setter, (receiver, ...args) => {
+  target.set = Hrefable.embed(setter, (receiver, ...args) => {
     // 1. get current URL
     const url = makeURL();
     url.search = orig.get().toString();
