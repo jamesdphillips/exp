@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 
-import * as ObjectUtil from "./index.ts";
+import * as ObjectUtil from "./object.ts";
 
 Deno.test({
   name: "Object.curry",

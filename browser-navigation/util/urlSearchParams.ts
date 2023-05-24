@@ -1,49 +1,15 @@
-import { Variable, local } from "../Var/index.ts";
-import * as Hrefable from "../Hrefable/index.ts";
+import type { Variable } from "../Var/index.ts";
+import * as variable from "../Var/index.ts";
+import * as Hrefable from "../hrefable/index.ts";
 import { Thunk } from "../core/index.ts";
-import * as Object from "../util/object.ts";
 
-type OmitFirstArg<T> = T extends (arg1: any, ...args: infer R) => infer U
-  ? (...args: R) => U
-  : never;
-type CurryInterface<T> = {
-  [P in keyof T]: OmitFirstArg<T[P]>;
-};
-
-const curriableProperties = [
-  "append",
-  "delete",
-  "get",
-  "getAll",
-  "has",
-  "set",
-] as const;
-type URLSearchParamsCurriableProperties = (typeof curriableProperties)[number];
-export type URLSearchParam = CurryInterface<
-  Pick<URLSearchParams, URLSearchParamsCurriableProperties>
->;
-
-export function toURLSearchParam(
-  params: Pick<URLSearchParams, URLSearchParamsCurriableProperties>,
-  property: PropertyKey
-): URLSearchParam {
-  return Object.curry(params, property);
-}
-
-export interface URLSearchProperties {
-  [_: string]: URLSearchParam;
-}
-
-export function toURLSearchProperties(
-  search: URLSearchParams
-): URLSearchProperties {
-  return new Proxy(search as object, {
-    get(_, prop) {
-      return toURLSearchParam(search, prop);
-    },
-  }) as URLSearchProperties;
-}
-
+/**
+ * Given a binding returns a hrefable copy.
+ * 
+ * @param target a binding with the URLSearchParams
+ * @param makeURL provide a copy of the current URL
+ * @returns hrefable.Var<T>
+ */
 export function hrefify<T extends URLSearchParams>(
   target: Variable<T>,
   makeURL: Thunk<URL>
@@ -62,7 +28,7 @@ export function hrefify<T extends URLSearchParams>(
     url.search = orig.get().toString();
 
     // 2. swap the target impl to mock
-    mock = local(url.searchParams);
+    mock = variable.local(url.searchParams);
 
     // 3. run operation on mock
     receiver(...args);
