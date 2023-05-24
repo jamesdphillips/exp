@@ -1,4 +1,4 @@
-import { curry, pick } from "../Object/index.ts";
+import { curry, pick } from "../util/object.ts";
 
 interface Dictionary<W, T> {
   get(word: W): T | null;
@@ -40,7 +40,7 @@ export function rerootList<W, T>(source: Dictionary<W, T>, word: W) {
       return source.getAll(word);
     },
     set(vs: T[]) {
-      source.set(word, null);
+      (source as any).delete(word);
       vs.forEach((v) => source.append(word, v));
     },
   } as Entry<typeof source, T[]>;
