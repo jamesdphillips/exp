@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 
-import type { Hrefable } from "./index.ts";
-import * as hrefable from "./index.ts";
+import type { Hrefable } from "./hrefable.ts";
+import * as hrefable from "./hrefable.ts";
 import Mapping from "../Mapping/index.ts";
 
 Deno.test({
