@@ -1,3 +1,6 @@
+/**
+ * Represents all valid JSON values
+ */
 export type JSONValue =
   | string
   | number
@@ -6,6 +9,9 @@ export type JSONValue =
   | JSONValue[]
   | { [key: string]: JSONValue };
 
+/**
+ * Represents a valid serializable object
+ */
 export interface JSONObject {
-  [key: string]: JSONValue;
+  [key: string]: JSONValue | undefined;
 }

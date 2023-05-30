@@ -1,4 +1,4 @@
-import { AnyFunc, Maybe } from "../core/index.ts";
+import { AnyFunc, Maybe } from "../type/index.ts";
 
 const symbol = Symbol();
 

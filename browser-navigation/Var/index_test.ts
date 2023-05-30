@@ -3,6 +3,8 @@ import { assertEquals } from "https://deno.land/std@0.187.0/testing/asserts.ts";
 import * as Variable from "./index.ts";
 import * as BMaps from "../strconv/bmap.ts";
 import * as Dictionary from "../Dictionary/index.ts";
+import { JSONObject, JSONValue } from "../type/index.ts";
+import { Maybe } from "../type/index.ts";
 
 Deno.test({
   name: "Variable.local",
@@ -203,3 +205,41 @@ Deno.test({
     assertEquals(c.get(), "7");
   },
 });
+
+Deno.test({
+  name: "Variable.chroot",
+  fn() {
+    const a = Variable.local({} as JSONObject);
+    const b = Variable.chroot(a, "myProp");
+    assertEquals(b.get(), undefined);
+
+    b.set(10);
+    assertEquals(b.get(), 10);
+    assertEquals(a.get(), { myProp: 10 });
+
+    const copy = a.get();
+    assertEquals(copy.myProp, 10);
+  }
+})
+
+function isNumber(x: unknown) {
+  if (typeof x === "number") {
+    return x;
+  }
+  return undefined;
+  // throw new TypeError();
+}
+
+Deno.test({
+  name: "Variable.cast",
+  fn() {
+    const a = Variable.local({ prop: 1 } as JSONObject);
+    const b = Variable.chroot(a, "prop");
+    const c = Variable.cast(b, isNumber);
+    assertEquals(c.get(), 1);
+
+    c.set(10);
+    assertEquals(c.get(), 10);
+    assertEquals(b.get(), 10);
+  }
+})

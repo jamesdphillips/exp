@@ -1,7 +1,7 @@
 import type { Variable } from "../Var/index.ts";
 import * as variable from "../Var/index.ts";
 import * as Hrefable from "../hrefable/index.ts";
-import { Thunk } from "../core/index.ts";
+import { Thunk } from "../type/index.ts";
 
 /**
  * Given a binding returns a hrefable copy.

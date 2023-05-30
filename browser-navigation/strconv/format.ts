@@ -1,4 +1,4 @@
-import { JSONObject, JSONValue } from "./types.ts";
+import { JSONObject, JSONValue } from "../type/index.ts";
 
 /**
  * Given a string converts the value to a valid JSONValue

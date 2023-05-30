@@ -1,10 +1,5 @@
-import { SetFn, GetFn } from "../core/index.ts";
+import { SetFn, GetFn } from "../type/index.ts";
 import * as Mapping from "../Mapping/index.ts";
-// import * as Hrefable from "../Hrefable/index.ts";
-// import * as Dictionary from "../Dictionary/en.ts";
-// import * as BMaps from "../strconv/bmap.ts";
-
-// import { pipe } from "../function/index.ts";
 
 /**
  * Given a value and a preset, one of the two is selected based on whether
@@ -286,6 +281,12 @@ export function transform<M, Var extends Variable<any> = any>(
 
 // type Proxied<V extends Variable<T>, T> = {};
 
+/**
+ * 
+ * @param src
+ * @param fn 
+ * @returns 
+ */
 export const transpose = <V extends Variable<any>, R extends Variable<any>>(
   src: V,
   fn: (v: ReturnType<(typeof src)["get"]>) => R
@@ -318,3 +319,52 @@ export const transpose = <V extends Variable<any>, R extends Variable<any>>(
 
 //
 // [Dictionary.rerootList("preset"), transform(BMaps.list()), preset([])];
+
+export type Projected<T> = T extends Variable<infer Obj> ? Obj : T;
+
+/**
+ * Given a variable containing an object, return a new variable with the given
+ * property as it's root.
+ * 
+ * @example
+ * 
+ * const a = Variable.local({ myProp: 10 } as JSONObject);
+ * const b = Variable.chroot(a, "myProp");
+ * b.get()        // 10
+ * b.set(15)      // void
+ * b.get()        // 15
+ * a.get().myProp // 15
+ * 
+ * @param variable 
+ * @param property
+ * @returns Transformed<typeof variable, Projected<typeof variable>[typeof property]>
+ */
+export function chroot<Obj extends Record<string, any>, Var extends Variable<Obj>>(
+  variable: Var,
+  prop: keyof Projected<Var>,
+) {
+  return Object.assign({}, variable, {
+    get: assignFn(variable.get, () => {
+      const copy = variable.get() as Projected<typeof variable>;
+      return copy[prop];
+    }),
+    set: assignFn(variable.set, (val: Projected<typeof variable>[typeof prop]) => {
+      const copy = variable.get() as Projected<typeof variable>;
+      copy[prop] = val;
+      variable.set(copy);
+    }),
+  }) as Transformed<typeof variable, Projected<typeof variable>[typeof prop]>;
+}
+
+export function cast<Var extends Variable<any>, T extends Projected<Var>>(
+  variable: Var,
+  fn: Mapping.OneWay<Projected<Var>, T>
+) {
+  return Object.assign({}, variable, {
+    get: assignFn(variable.get, () => {
+      const copy = variable.get() as Projected<typeof variable>;
+      return fn(copy);
+    }),
+    set: (variable.set as unknown as Variable<T>),
+  }) as Transformed<typeof variable, T>;
+}
